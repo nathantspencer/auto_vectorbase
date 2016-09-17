@@ -19,7 +19,7 @@ def vectorbaser(file_path):
         target_ids.append(ws.cell(row=row, column=1).value)
 
     # search all pages of drugs starting with that letter
-    current_row_number = 1;
+    current_row_number = 3;
     for target_id in target_ids:
 
         print(target_id)
@@ -33,11 +33,13 @@ def vectorbaser(file_path):
         # navigate to gene page
         gene_link = '/Gene/Summary/'
         pea_soup = soup.findAll('a', href=re.compile(gene_link))
-        search_url = 'https://www.vectorbase.org' + str(pea_soup.pop())
+        pea_soup_string = str(pea_soup.pop())
+        link_ending = re.search('a href="(.*?)"', pea_soup_string)
+        search_url = 'https://www.vectorbase.org' + link_ending.group(1)
         response = requests.get(search_url)
         soup = BeautifulSoup(response.text, 'lxml')
 
-        pea_soup = soup.findAll('a', { "class" : "GO:_Cellular_component"})
+        pea_soup = soup.findAll('a', {"title":"GO: Cellular component"})
 
         if current_row_number == 13:
             code.interact(local=locals())
