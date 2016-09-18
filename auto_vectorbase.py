@@ -4,13 +4,22 @@ import code
 import requests
 import re
 import sys
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
 
 # vectorbaser
 def vectorbaser(file_path):
 
+    driver = webdriver.Firefox()
+
     # load up the worksheet, get the number of rows
     wb = load_workbook(filename=file_path, use_iterators=False)
     ws = wb.worksheets[0]
+
     num_rows = ws.get_highest_row()
 
     # iterate through target_ids, grab them
@@ -40,12 +49,51 @@ def vectorbaser(file_path):
         soup = BeautifulSoup(response.text, 'lxml')
 
         pea_soup = soup.findAll('a', {"title":"GO: Cellular component"})
+        if len(pea_soup) > 0:
+            pea_soup_string = str(pea_soup.pop())
+            link_ending = re.search('href="(.*?)"', pea_soup_string)
+            search_url = 'https://www.vectorbase.org' + link_ending.group(1)
+            driver.get(search_url)
+            time.sleep(3)
+            source = driver.page_source
+            cell_comp = re.search('<td style="width:25%;text-align:left">([a-z ]+)</td>', source)
+            if not cell_comp is None:
+                cell_comp = cell_comp.group(1)
+                code.interact(local=locals())
+                ws.cell(row=row, column=3).value = cell_comp
 
-        if current_row_number == 13:
-            code.interact(local=locals())
+        pea_soup = soup.findAll('a', {"title":"GO: Biological process"})
+        if len(pea_soup) > 0:
+            pea_soup_string = str(pea_soup.pop())
+            link_ending = re.search('href="(.*?)"', pea_soup_string)
+            search_url = 'https://www.vectorbase.org' + link_ending.group(1)
+            driver.get(search_url)
+            time.sleep(3)
+            source = driver.page_source
+            bio_proc = re.search('<td style="width:25%;text-align:left">([a-z ]+)</td>', source)
+            if not bio_proc is None:
+                bio_proc = bio_proc.group(1)
+                ws.cell(row=row, column=4).value = bio_proc
 
-        # iterate to next row number
+        pea_soup = soup.findAll('a', {"title":"GO: Molecular function"})
+        if len(pea_soup) > 0:
+            pea_soup_string = str(pea_soup.pop())
+            link_ending = re.search('href="(.*?)"', pea_soup_string)
+            search_url = 'https://www.vectorbase.org' + link_ending.group(1)
+            driver.get(search_url)
+            time.sleep(3)
+            source = driver.page_source
+            mol_func = re.search('<td style="width:25%;text-align:left">([a-z ]+)</td>', source)
+            if not mol_func is None:
+                mol_func = mol_func.group(1)
+                ws.cell(row=row, column=5).value = mol_func
+
+        # save, iterate to next row number
+        wb.save(file_path)
         current_row_number += 2
+
+    driver.Quit()
+
 
 # help text and launch of vectorbaser
 if __name__ == '__main__':
