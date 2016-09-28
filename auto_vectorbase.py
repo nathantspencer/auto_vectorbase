@@ -57,7 +57,7 @@ def vectorbaser(file_path):
             driver.get(search_url)
             time.sleep(3)
             source = driver.page_source
-            cell_comp = re.search('<td style="width:25%;text-align:left">([a-z ]+)</td>', source)
+            cell_comp = re.search('<td style="width:25%;text-align:left">([A-Za-z ]+)</td>', source)
             if not cell_comp is None:
                 cell_comp = cell_comp.group(1)
                 ws.cell(row=current_row_number, column=3).value = cell_comp
@@ -71,7 +71,7 @@ def vectorbaser(file_path):
             driver.get(search_url)
             time.sleep(3)
             source = driver.page_source
-            bio_proc = re.search('<td style="width:25%;text-align:left">([a-z ]+)</td>', source)
+            bio_proc = re.search('<td style="width:25%;text-align:left">([A-Za-z ]+)</td>', source)
             if not bio_proc is None:
                 bio_proc = bio_proc.group(1)
                 ws.cell(row=current_row_number, column=4).value = bio_proc
@@ -85,7 +85,7 @@ def vectorbaser(file_path):
             driver.get(search_url)
             time.sleep(3)
             source = driver.page_source
-            mol_func = re.search('<td style="width:25%;text-align:left">([a-z -]+)</td>', source)
+            mol_func = re.search('<td style="width:25%;text-align:left">([A-Za-z -]+)</td>', source)
             if not mol_func is None:
                 if(current_row_number == 7):
                     code.interact(local=locals())
@@ -93,7 +93,20 @@ def vectorbaser(file_path):
                 ws.cell(row=current_row_number, column=5).value = mol_func
 
         # navigate to orthologues, grab info if it exists
-        pea_soup = soup.findAll('a', {"title":"GO: Molecular function"});
+        pea_soup = soup.findAll('a', {"title":"Orthologues"});
+        if len(pea_soup) > 0:
+            pea_soup_string = str(pea_soup.pop())
+            link_ending = re.search('href="(.*?)"', pea_soup_string)
+            search_url = 'https://www.vectorbase.org' + link_ending.group(1)
+            driver.get(search_url)
+            time.sleep(3)
+            source = driver.page_source
+            orthologues = re.findall('<td style="width:10%;text-align:left" class=" sorting_1">([a-zA-Z -]+)</td>', source)
+            ortho_texts = re.findall('</a></p><span class="small">([a-zA-Z -_]+?)</span>', source)
+            ortho_dict = dict()
+            for (orthologue, ortho_text) in zip(orthologues, ortho_texts):
+                ortho_dict[orthologue] = ortho_text
+            code.interact(local=locals())
 
         # save, iterate to next row number
         wb.save(file_path)
