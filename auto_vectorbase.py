@@ -29,9 +29,13 @@ def vectorbaser(file_path):
 
     # search all pages of drugs starting with that letter
     current_row_number = 3;
+    wb.save(file_path);
+
     for target_id in target_ids:
 
         print(target_id)
+        wb = load_workbook(filename=file_path, use_iterators=False)
+        ws = wb.worksheets[0]
 
         # navigate to search page
         search_url = 'https://www.vectorbase.org/search/site/' + \
@@ -59,8 +63,7 @@ def vectorbaser(file_path):
             cell_comp = re.search('<td style="width:25%;text-align:left">([a-z ]+)</td>', source)
             if not cell_comp is None:
                 cell_comp = cell_comp.group(1)
-                code.interact(local=locals())
-                ws.cell(row=row, column=3).value = cell_comp
+                ws.cell(row=current_row_number, column=3).value = cell_comp
 
         pea_soup = soup.findAll('a', {"title":"GO: Biological process"})
         if len(pea_soup) > 0:
@@ -73,7 +76,7 @@ def vectorbaser(file_path):
             bio_proc = re.search('<td style="width:25%;text-align:left">([a-z ]+)</td>', source)
             if not bio_proc is None:
                 bio_proc = bio_proc.group(1)
-                ws.cell(row=row, column=4).value = bio_proc
+                ws.cell(row=current_row_number, column=4).value = bio_proc
 
         pea_soup = soup.findAll('a', {"title":"GO: Molecular function"})
         if len(pea_soup) > 0:
@@ -83,10 +86,12 @@ def vectorbaser(file_path):
             driver.get(search_url)
             time.sleep(3)
             source = driver.page_source
-            mol_func = re.search('<td style="width:25%;text-align:left">([a-z ]+)</td>', source)
+            mol_func = re.search('<td style="width:25%;text-align:left">([a-z -]+)</td>', source)
             if not mol_func is None:
+                if(current_row_number == 7):
+                    code.interact(local=locals())
                 mol_func = mol_func.group(1)
-                ws.cell(row=row, column=5).value = mol_func
+                ws.cell(row=current_row_number, column=5).value = mol_func
 
         # save, iterate to next row number
         wb.save(file_path)
