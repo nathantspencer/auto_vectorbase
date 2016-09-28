@@ -5,10 +5,6 @@ import requests
 import re
 import sys
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 import time
 
 # vectorbaser
@@ -52,6 +48,7 @@ def vectorbaser(file_path):
         response = requests.get(search_url)
         soup = BeautifulSoup(response.text, 'lxml')
 
+        # navigate to cellular component, grab info if it exists
         pea_soup = soup.findAll('a', {"title":"GO: Cellular component"})
         if len(pea_soup) > 0:
             pea_soup_string = str(pea_soup.pop())
@@ -65,6 +62,7 @@ def vectorbaser(file_path):
                 cell_comp = cell_comp.group(1)
                 ws.cell(row=current_row_number, column=3).value = cell_comp
 
+        # navigate to biological process, grab info if it exists
         pea_soup = soup.findAll('a', {"title":"GO: Biological process"})
         if len(pea_soup) > 0:
             pea_soup_string = str(pea_soup.pop())
@@ -78,6 +76,7 @@ def vectorbaser(file_path):
                 bio_proc = bio_proc.group(1)
                 ws.cell(row=current_row_number, column=4).value = bio_proc
 
+        # navigate to molecular function, grab info if it exists
         pea_soup = soup.findAll('a', {"title":"GO: Molecular function"})
         if len(pea_soup) > 0:
             pea_soup_string = str(pea_soup.pop())
@@ -92,6 +91,9 @@ def vectorbaser(file_path):
                     code.interact(local=locals())
                 mol_func = mol_func.group(1)
                 ws.cell(row=current_row_number, column=5).value = mol_func
+
+        # navigate to orthologues, grab info if it exists
+        pea_soup = soup.findAll('a', {"title":"GO: Molecular function"});
 
         # save, iterate to next row number
         wb.save(file_path)
