@@ -42,11 +42,12 @@ def vectorbaser(file_path):
         # navigate to gene page
         gene_link = '/Gene/Summary/'
         pea_soup = soup.findAll('a', href=re.compile(gene_link))
-        pea_soup_string = str(pea_soup.pop())
-        link_ending = re.search('a href="(.*?)"', pea_soup_string)
-        search_url = 'https://www.vectorbase.org' + link_ending.group(1)
-        response = requests.get(search_url)
-        soup = BeautifulSoup(response.text, 'lxml')
+        if len(pea_soup) > 0:
+            pea_soup_string = str(pea_soup.pop())
+            link_ending = re.search('a href="(.*?)"', pea_soup_string)
+            search_url = 'https://www.vectorbase.org' + link_ending.group(1)
+            response = requests.get(search_url)
+            soup = BeautifulSoup(response.text, 'lxml')
 
         # navigate to cellular component, grab info if it exists
         pea_soup = soup.findAll('a', {"title":"GO: Cellular component"})
