@@ -57,9 +57,9 @@ def vectorbaser(file_path):
             driver.get(search_url)
             time.sleep(3)
             source = driver.page_source
-            cell_comp = re.search('<td style="width:25%;text-align:left">([A-Za-z ]+)</td>', source)
-            if not cell_comp is None:
-                cell_comp = cell_comp.group(1)
+            cell_comp = re.findall('<td style="width:25%;text-align:left">([A-Za-z -_]+?)</td>', source)
+            if len(cell_comp) > 0:
+                cell_comp = cell_comp[0]
                 ws.cell(row=current_row_number, column=3).value = cell_comp
 
         # navigate to biological process, grab info if it exists
@@ -71,9 +71,9 @@ def vectorbaser(file_path):
             driver.get(search_url)
             time.sleep(3)
             source = driver.page_source
-            bio_proc = re.search('<td style="width:25%;text-align:left">([A-Za-z ]+)</td>', source)
-            if not bio_proc is None:
-                bio_proc = bio_proc.group(1)
+            bio_proc = re.findall('<td style="width:25%;text-align:left">([A-Za-z -_]+?)</td>', source)
+            if len(bio_proc) > 0:
+                bio_proc = bio_proc[0]
                 ws.cell(row=current_row_number, column=4).value = bio_proc
 
         # navigate to molecular function, grab info if it exists
@@ -85,11 +85,9 @@ def vectorbaser(file_path):
             driver.get(search_url)
             time.sleep(3)
             source = driver.page_source
-            mol_func = re.search('<td style="width:25%;text-align:left">([A-Za-z -]+)</td>', source)
-            if not mol_func is None:
-                if(current_row_number == 7):
-                    code.interact(local=locals())
-                mol_func = mol_func.group(1)
+            mol_func = re.findall('<td style="width:25%;text-align:left">([A-Za-z -_]+?)</td>', source)
+            if len(mol_func) > 0:
+                mol_func = mol_func[0]
                 ws.cell(row=current_row_number, column=5).value = mol_func
 
         # navigate to orthologues, grab info if it exists
@@ -101,12 +99,53 @@ def vectorbaser(file_path):
             driver.get(search_url)
             time.sleep(3)
             source = driver.page_source
-            orthologues = re.findall('<td style="width:10%;text-align:left" class=" sorting_1">([a-zA-Z -]+)</td>', source)
-            ortho_texts = re.findall('</a></p><span class="small">([a-zA-Z -_]+?)</span>', source)
+            orthologues = re.findall('<td style="width:10%;text-align:left" class=" sorting_1">([a-zA-Z -_]+?)</td>', source)
+
+            ortho_texts_wrapper = re.findall('<td style="width:15%;text-align:left">([a-zA-Z -_]+?)</td>', source)
+            ortho_texts = []
+            for wrapper in ortho_texts_wrapper:
+                matches = re.findall('<span class="small">([a-zA-Z -_]+?)</span>', wrapper)
+                ortho_texts.append(matches[0])
+
             ortho_dict = dict()
             for (orthologue, ortho_text) in zip(orthologues, ortho_texts):
                 ortho_dict[orthologue] = ortho_text
-            code.interact(local=locals())
+            descriptionFound = False;
+            description = 'No description available.';
+
+            # check for glossina morsitans
+            for orthologue in orthologues:
+                if orthologue.split()[0] == "Glossina" and orthologue.split()[1] == "morsitans" and not ortho_dict[orthologue] == 'No description':
+                    descriptionFound = True;
+                    description = ortho_dict[orthologue];
+                    break;
+
+            # check for any glossina
+            if not descriptionFound:
+                for orthologue in orthologues:
+                    if orthologue.split()[0] == "Glossina" and not ortho_dict[orthologue] == 'No description':
+                        descriptionFound = True;
+                        description = ortho_dict[orthologue];
+                        break;
+
+            # check for drosophila melanogaster
+            if not descriptionFound:
+                for orthologue in orthologues:
+                    if orthologue == "Drosophila melanogaster" and not ortho_dict[orthologue] == 'No description':
+                        descriptionFound = True;
+                        description = ortho_dict[orthologue];
+                        break;
+
+            # check for musca domestica
+            if not descriptionFound:
+                for orthologue in orthologues:
+                    if orthologue == "Musca domestica" and not ortho_dict[orthologue] == 'No description':
+                        descriptionFound = True;
+                        description = ortho_dict[orthologue];
+                        break;
+
+            # if we couldn't find a description, just admit defeat and write
+            ws.cell(row=current_row_number, column=6).value = description
 
         # save, iterate to next row number
         wb.save(file_path)
