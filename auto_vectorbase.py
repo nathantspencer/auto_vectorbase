@@ -20,7 +20,7 @@ def vectorbaser(file_path):
 
     # iterate through target_ids, grab them
     target_ids = []
-    for row in range(3, num_rows, 2):
+    for row in range(3, num_rows + 1, 2):
         target_ids.append(ws.cell(row=row, column=1).value)
 
     # search all pages of drugs starting with that letter
@@ -152,7 +152,7 @@ def vectorbaser(file_path):
         wb.save(file_path)
         current_row_number += 2
 
-    driver.Quit()
+    driver.close()
 
 
 # help text and launch of vectorbaser
