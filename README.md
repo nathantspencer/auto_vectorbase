@@ -1,6 +1,6 @@
 # auto_vectorbase
 ### What is auto_vectorbase?
-`auto_vectorbase.py` is a web scraping Python script written for a very specific use case at West Virginia University. It can, however, be adapted for similar applications. The script grabs information about molecular function, biological process, cellular component, and other notes and appends them to a provided Excel spreadsheet.
+`auto_vectorbase.py` is a web scraping Python script written for a very specific use case at West Virginia University. It can, however, be adapted for similar applications. The script grabs information about molecular function, biological process, cellular component, and other notes and appends them to a provided Excel spreadsheet. It is specific to the genus _Glossina_.
 ### How can I use it?
 Running `auto_vectorbase.py` is simple. Simply place your Excel document in the `/auto_vectorbase` directory and run the following command from a terminal in that directory:
 
