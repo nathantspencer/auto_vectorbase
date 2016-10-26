@@ -13,24 +13,24 @@ def vectorbaser(file_path):
     driver = webdriver.Firefox()
 
     # load up the worksheet, get the number of rows
-    wb = load_workbook(filename=file_path, use_iterators=False)
+    wb = load_workbook(filename=file_path)
     ws = wb.worksheets[0]
 
-    num_rows = ws.get_highest_row()
+    num_rows = ws.max_row
 
     # iterate through target_ids, grab them
     target_ids = []
-    for row in range(3, num_rows + 1, 2):
+    for row in range(2, num_rows + 1, 1):
         target_ids.append(ws.cell(row=row, column=1).value)
 
     # search all pages of drugs starting with that letter
-    current_row_number = 3;
+    current_row_number = 2;
     wb.save(file_path);
 
     for target_id in target_ids:
 
         print(target_id)
-        wb = load_workbook(filename=file_path, use_iterators=False)
+        wb = load_workbook(filename=file_path)
         ws = wb.worksheets[0]
 
         # navigate to search page
@@ -150,7 +150,7 @@ def vectorbaser(file_path):
 
         # save, iterate to next row number
         wb.save(file_path)
-        current_row_number += 2
+        current_row_number += 1
 
     driver.close()
 
