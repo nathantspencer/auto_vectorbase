@@ -6,10 +6,10 @@ Running `auto_vectorbase.py` is simple. Simply place your Excel document in the 
 
 `$ python auto_vectorbase.py name_of_excel_file.xlsx`
 
-The process may take some time, but the spreadsheet is saved every time a row of information is scraped, so don't worry if the script is interrupted. That being said, there is currently no way to pick up where you left off, so the script will begin from the start of your spreadsheet if you rerun it.
+The process may take some time, but the spreadsheet is saved every time a row of information is scraped, so don't worry if the script is interrupted. That being said, there is currently no way to pick up where you left off, so the script will begin from the start of your spreadsheet if you rerun it. If you are feeling adventurous, lines 23 and lines 27 can be adjusted to alter the range of rows that the script will fill.
 
 ### How should my Excel file be set up?
-Your Excel file should be set up with the target ID (e.g. GPAI034476) of the gene in the first column. Right now, a blank row is required between target IDs, so only every other row should have content, starting at row 3. The third column will be populated with  cellular components, the fourth with biological process, the fifth with molecular function, and the sixth with additional notes.
+Your Excel file should be set up with the target ID (e.g. GPAI034476) of the gene in the first column. The second column is unused and can be blank or can contain values. The third column will be populated with cellular components, the fourth with biological process, the fifth with molecular function, and the sixth with additional notes. Your Excel file is assumed to have a header row, so processing will begin at row 2.
 
 ### What dependencies do I need to install?
 Along with Python 3.x, the following python modules are required:
